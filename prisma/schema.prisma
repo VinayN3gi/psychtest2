@@ -1,0 +1,156 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL") // uses connection pooling
+ 
+}
+
+
+model User{
+  id String @id @unique
+  email String @unique
+
+  stripeCustomerId String?  @unique @map("stripe_customer_id")
+  stripeSubscriptionId String? @unique @map("stripe_subscription_id")
+  stripePriceId String? @unique @map("stripe_price_id")
+  stripeCurrentPeriodEnd DateTime? @map("stripe_current_period_end")
+
+  InterestInventory InterestInventory?
+  PersonalityInventory PersonalityInventory?
+  SkillAssesment SkillAssesment?
+  ValueAssesment ValueAssesment?
+  InterestInventoryTable InterestInventoryTable?
+  PersonalityTrait PersonalityTrait?
+  SkillAssesmentTable SkillAssesmentTable?
+  ValueAssesmentTable ValueAssesmentTable?
+}
+
+model InterestInventory{
+  answerId String @id @default(cuid())
+  answerOne Int 
+  answerTwo Int  
+  answerThree Int 
+  answerFour Int 
+  answerFive Int 
+  answerSix Int 
+  answerSeven Int 
+  answerEight Int 
+  answerNine Int 
+  answerTen Int 
+  answerEleven Int 
+  answerTwelve Int    
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+}
+
+model PersonalityInventory{
+  answerId String @id @default(cuid())
+  answerOne Int
+  answerTwo Int 
+  answerThree Int 
+  answerFour Int 
+  answerFive Int 
+  answerSix Int 
+  answerSeven Int 
+  answerEight Int 
+  answerNine Int 
+  answerTen Int 
+  answerEleven Int 
+  answerTwelve Int    
+  answerThirteen Int
+  answerFourteen Int
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+}
+
+model SkillAssesment{
+  answerId String @id @default(cuid())
+  answerOne Int
+  answerTwo Int  
+  answerThree Int 
+  answerFour Int
+  answerFive Int 
+  answerSix Int 
+  answerSeven Int 
+  answerEight Int 
+  answerNine Int 
+  answerTen Int 
+  answerEleven Int
+  answerTwelve Int    
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+}
+
+model ValueAssesment{
+  answerId String @id @default(cuid())
+  answerOne Int 
+  answerTwo Int  
+  answerThree Int 
+  answerFour Int 
+  answerFive Int 
+  answerSix Int 
+  answerSeven Int 
+  answerEight Int
+  answerNine Int 
+  answerTen Int
+  answerEleven Int 
+  answerTwelve Int    
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+}
+
+model InterestInventoryTable{
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+  tableId String @id @default(cuid())
+  artisticScore Int
+  investigativeScore Int
+  socialScore Int
+  realisticScore Int
+  enterprisingScore Int
+  conventionalScore Int
+}
+
+model PersonalityTrait{
+  tableId String @id @default(cuid())
+  extraversionScore Int
+  agreeablenessScore Int
+  conscientiousnessScore Int
+  stabilityScore Int
+  experienceOpennessScore Int
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+}
+
+model SkillAssesmentTable{
+  tableId String @id @default(cuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+  analyticalScore Int
+  communicationScore Int
+  creativeScore Int
+  leadershipScore Int
+  technicalScore Int
+  teamworkScore Int
+}
+
+model ValueAssesmentTable{
+  tableId String @id @default(cuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+  achievementScore Int
+  innovationScore Int
+  stabilityScore Int
+  helpingScore Int
+  autonomyScore Int
+  financialScore Int
+}
