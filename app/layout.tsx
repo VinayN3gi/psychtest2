@@ -4,8 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import Provider from "./components/Provider";
 import Navbar from "./components/Navbar";
-import { Toaster } from "@/components/ui/toaster"
-
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] });
 const ebGaramond = EB_Garamond({ subsets: ["latin"] ,weight:['400']});
@@ -25,6 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={cn('min-h-screen antialiased grainy',ebGaramond.className)}>
         {children}
+        <Toaster richColors  duration={3000}/>
         </body>
     </html>
   );

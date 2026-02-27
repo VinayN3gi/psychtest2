@@ -8,11 +8,73 @@ import {
   ArrowRight, 
   ArrowLeft,
   CheckCircle,
-  BrainCircuit
+  BrainCircuit,
+  Loader2
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import { toast } from "sonner"
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [email,setEmail]=useState<string>("")
+  const [password,setPassword]=useState<string>("")
+  const [username,setUsername]=useState<string>("")
+  const [loading,setLoading]=useState<boolean>(false);
+
+  const router = useRouter()
+
+  const handleAuth = async () => {
+    if (!email || !password || (!isLogin && !username)) {
+      toast.error("Please fill all fields")
+      return
+    }
+
+    try {
+      setLoading(true)
+
+      if (isLogin) {
+        // SIGN IN
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+
+        if (error) throw error
+
+        toast.success('Welcome Back')
+        router.push("/dashboard")
+      } else {
+        // SIGN UP
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        })
+       
+        if (error) throw error
+        if (!data.user) throw new Error("User creation failed")
+
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .insert({
+            id: data.user.id,
+            username,
+          })
+
+        if (profileError) throw profileError
+
+        toast.success("Account created successfully")
+      }
+
+      router.push("/dashboard")
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row font-sans selection:bg-blue-100 selection:text-blue-900">
@@ -105,6 +167,7 @@ const AuthPage = () => {
                   <input 
                     type="text" 
                     placeholder="John Doe" 
+                    onChange={(e)=>setUsername(e.target.value)} 
                     className="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 placeholder:text-slate-400 shadow-sm"
                   />
                 </div>
@@ -119,6 +182,7 @@ const AuthPage = () => {
                 </div>
                 <input 
                   type="email" 
+                  onChange={(e)=>setEmail(e.target.value)}
                   placeholder="you@example.com" 
                   className="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 placeholder:text-slate-400 shadow-sm"
                 />
@@ -136,14 +200,32 @@ const AuthPage = () => {
                 <input 
                   type="password" 
                   placeholder="••••••••" 
+                  onChange={(e)=>setPassword(e.target.value)}
                   className="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-900 placeholder:text-slate-400 shadow-sm"
                 />
               </div>
             </div>
 
-            <button className="w-full flex items-center justify-center gap-2 px-8 py-4 mt-4 bg-blue-600 text-white text-lg font-medium rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-              {isLogin ? 'Sign In' : 'Create Account'}
-              <ArrowRight size={20} />
+              <button 
+              onClick={handleAuth}
+              disabled={loading}
+              className={`w-full flex items-center justify-center gap-2 px-8 py-4 mt-4 text-white text-lg font-medium rounded-xl transition-all duration-300 ${
+                loading
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  {isLogin ? "Sign In" : "Create Account"}
+                  <ArrowRight size={20} />
+                </>
+              )}
             </button>
           </form>
 

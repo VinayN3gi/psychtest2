@@ -9,7 +9,8 @@ import { buttonVariants } from '@/components/ui/button'
 
 const Dashboard = () => {
 
-  const {data,isLoading}=trpc.getDashboardInfo.useQuery()
+  const isLoading=false;
+  const data=false
 
   const [clikc,setClick]=useState(false)
 
