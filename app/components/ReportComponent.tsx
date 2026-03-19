@@ -43,16 +43,12 @@ const ReportComponent = () => {
 
         </div>
 
-        <div className=' mb-5'>
+       <div className=' mb-5'>
           <h2 className=' text-2xl text-blue-500 font-bold mb-5 '>
               2. Interest Inventory 
           </h2>
           <InterestInventoryTable/>
-        </div>
-
-
-
-      {/* 
+        </div> 
         <div className=' mb-5'>
           <h2 className=' text-2xl text-blue-500 font-bold mb-5 '>
               3. Personality Traits
@@ -65,8 +61,7 @@ const ReportComponent = () => {
               4. Skills Assessment
           </h2>
           <SkillAssesmentTable/>
-        </div>
-        */}
+        </div> 
     </div>
   )
 }
