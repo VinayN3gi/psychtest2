@@ -68,7 +68,7 @@ const ReportComponent = () => {
              <div className="space-y-4">
                 <div className="flex justify-between items-center border-b border-white/20 pb-2">
                   <span className="opacity-80">Modules Completed</span>
-                  <span className="font-semibold">3 / 3</span>
+                  <span className="font-semibold">4 / 4</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-white/20 pb-2">
                   <span className="opacity-80">Data Points Analyzed</span>
