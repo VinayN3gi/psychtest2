@@ -1,18 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { Loader2 } from 'lucide-react'
-import {
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, LineChart, Line, Legend
-} from 'recharts'
+import { Loader2, BrainCircuit } from 'lucide-react'
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts'
 import { supabase } from '@/lib/supabase'
 
 type DataType = {
@@ -20,175 +9,83 @@ type DataType = {
     agreeablenessscore: number
     consciencetiousnessscore: number
     stabilityscore: number
-    experienceopenessscore: number
+    experienceopenessscore: number // Added from your schema logic
 }
 
-type valuesInterface = {
-    name: string,
-    score: number,
-    averageScore: number
-}
-
-const PersonalityInventoryTable = () => {
-
+export default function PersonalityInventoryTable() {
     const [data, setData] = useState<DataType | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // ✅ get user
-                const {
-                    data: { user }
-                } = await supabase.auth.getUser()
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) return setData(null)
 
-                if (!user) {
-                    setData(null)
-                    return
-                }
-
-                // ✅ call edge function
-                const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-personality-inventory`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ userId: user.id }),
-                    }
-                )
-
-                const result = await res.json()
-                setData(result)
-
+                const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-personality-inventory`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: user.id }),
+                })
+                setData(await res.json())
             } catch (err) {
                 console.error(err)
-                setData(null)
             } finally {
                 setIsLoading(false)
             }
         }
-
         fetchData()
     }, [])
 
-    // 🔄 Loading
-    if (isLoading)
-        return (
-            <div className='justify-center flex items-center'>
-                <Loader2 className='h-7 w-7 animate-spin' color='blue' />
-            </div>
-        )
+    if (isLoading) return <div className="bg-white rounded-3xl p-8 shadow-xl flex justify-center items-center min-h-[400px]"><Loader2 className='h-8 w-8 animate-spin text-blue-600' /></div>
+    if (!data) return <div className="bg-white rounded-3xl p-8 shadow-xl text-center"><p className="text-slate-500">No data found</p></div>
 
-    // ❌ No data
-    if (!data)
-        return (
-            <div className='text-center'>
-                <div className='text-2xl font-bold'>No data found</div>
-                <div className='mt-1'>Please refresh the page or try again later</div>
-            </div>
-        )
-
-    // ⚠️ Map lowercase → camelCase usage
-    const values: valuesInterface[] = [
-        {
-            name: 'Extraversion',
-            score: data.extraversionscore * 10,
-            averageScore: 32
-        },
-        {
-            name: 'Agreeableness',
-            score: data.agreeablenessscore * 10,
-            averageScore: 35
-        },
-        {
-            name: 'Conscientiousness',
-            score: data.consciencetiousnessscore * 10,
-            averageScore: 37
-        },
-        {
-            name: 'Emotional Stability',
-            score: data.stabilityscore * 10,
-            averageScore: 47
-        },
+    const values = [
+        { name: 'Extraversion', score: data.extraversionscore * 10, fullMark: 100 },
+        { name: 'Agreeableness', score: data.agreeablenessscore * 10, fullMark: 100 },
+        { name: 'Conscientious', score: data.consciencetiousnessscore * 10, fullMark: 100 },
+        { name: 'Stability', score: data.stabilityscore * 10, fullMark: 100 },
+        // { name: 'Openness', score: data.experienceopenessscore * 10, fullMark: 100 }, // Ensure this exists in your DB
     ]
 
     return (
-        <div>
-            <Table className="min-w-full shadow-md rounded-lg overflow-hidden">
-                <TableHeader className="bg-blue-600 text-white">
-                    <TableRow>
-                        <TableHead className="text-black p-2 text-lg">Trait</TableHead>
-                        <TableHead className="text-black p-2 text-lg">Score</TableHead>
-                        <TableHead className="text-black p-2 text-lg">Description</TableHead>
-                    </TableRow>
-                </TableHeader>
+        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-200/50 border border-slate-100 h-full flex flex-col">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
+                    <BrainCircuit size={22} />
+                </div>
+                <h2 className="text-xl font-bold text-slate-900">Personality Profile</h2>
+            </div>
 
-                <TableBody className="text-gray-700 text-lg">
-                    <TableRow className='bg-white'>
-                        <TableCell>Extraversion</TableCell>
-                        <TableCell>{`${data.extraversionscore * 10}%`}</TableCell>
-                        <TableCell>Prefers smaller groups and calm environments.</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-blue-100'>
-                        <TableCell>Agreeableness</TableCell>
-                        <TableCell>{`${data.agreeablenessscore * 10}%`}</TableCell>
-                        <TableCell>Cooperative and empathetic.</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-white'>
-                        <TableCell>Conscientiousness</TableCell>
-                        <TableCell>{`${data.consciencetiousnessscore * 10}%`}</TableCell>
-                        <TableCell>Organized and responsible.</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-blue-100'>
-                        <TableCell>Emotional Stability</TableCell>
-                        <TableCell>{`${data.stabilityscore * 10}%`}</TableCell>
-                        <TableCell>Calm under pressure.</TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-
-            {/* 📊 Area Chart */}
-            <div className='mt-10 mb-10'>
-                <h1 className='text-xl font-semibold text-blue-600 mb-4'>
-                    Personality Traits Score
-                </h1>
-
-                <ResponsiveContainer width="100%" height={250}>
-                    <AreaChart data={values}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Area type="monotone" dataKey="score" stroke="#ADD8E6" fill="#ADD8E6" />
-                    </AreaChart>
+            {/* Radar Chart */}
+            <div className="h-[250px] w-full -ml-4">
+                <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={values}>
+                        <PolarGrid stroke="#e2e8f0" />
+                        <PolarAngleAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                        <Radar name="User" dataKey="score" stroke="#8b5cf6" fill="#a78bfa" fillOpacity={0.5} />
+                    </RadarChart>
                 </ResponsiveContainer>
             </div>
 
-            {/* 📈 Line Chart */}
-            <div className='mb-5'>
-                <h1 className='text-xl text-blue-600 font-semibold mb-5'>
-                    Personality Trait Comparison
-                </h1>
-
-                <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={values}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Line type="monotone" dataKey="score" stroke="#ADD8E6" />
-                        <Line type="monotone" dataKey="averageScore" stroke="#82ca9d" />
-                    </LineChart>
-                </ResponsiveContainer>
+            {/* Progress Bars replacing the Table */}
+            <div className="mt-6 space-y-4 flex-1">
+                {values.map((trait, idx) => (
+                    <div key={idx}>
+                        <div className="flex justify-between text-sm font-semibold mb-1">
+                            <span className="text-slate-700">{trait.name}</span>
+                            <span className="text-purple-600">{trait.score}%</span>
+                        </div>
+                        <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <div 
+                                className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-1000" 
+                                style={{ width: `${trait.score}%` }}
+                            />
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     )
 }
-
-export default PersonalityInventoryTable

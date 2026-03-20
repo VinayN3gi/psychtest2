@@ -1,18 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { Loader2 } from 'lucide-react'
-import {
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, LineChart, Line, Legend
-} from 'recharts'
+import { Loader2, Target } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts'
 import { supabase } from '@/lib/supabase'
 
 type DataType = {
@@ -24,183 +13,84 @@ type DataType = {
     teamworkscore: number
 }
 
-type valuesInterface = {
-    name: string,
-    score: number,
-    averageScore: number
-}
-
-const SkillAssessmentTable = () => {
-
+export default function SkillAssessmentTable() {
     const [data, setData] = useState<DataType | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // ✅ get user
-                const {
-                    data: { user }
-                } = await supabase.auth.getUser()
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) return setData(null)
 
-                if (!user) {
-                    setData(null)
-                    return
-                }
-
-                // ✅ call edge function
-                const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-skill-assessment`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ userId: user.id }),
-                    }
-                )
-
-                const result = await res.json()
-                setData(result)
-
+                const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-skill-assessment`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: user.id }),
+                })
+                setData(await res.json())
             } catch (err) {
                 console.error(err)
-                setData(null)
-            } finally {
-                setIsLoading(false)
-            }
+            } finally { setIsLoading(false) }
         }
-
         fetchData()
     }, [])
 
-    // 🔄 Loading
-    if (isLoading)
-        return (
-            <div className='flex justify-center items-center'>
-                <Loader2 className='h-7 w-7 animate-spin' color='blue' />
-            </div>
-        )
+    if (isLoading) return <div className="bg-white rounded-3xl p-8 shadow-xl flex justify-center items-center min-h-[400px]"><Loader2 className='h-8 w-8 animate-spin text-blue-600' /></div>
+    if (!data) return <div className="bg-white rounded-3xl p-8 shadow-xl text-center"><p className="text-slate-500">No data found</p></div>
 
-    // ❌ No data
-    if (!data)
-        return (
-            <div className='text-center'>
-                <div className='text-2xl font-bold'>No data found</div>
-                <div className='mt-1'>Please refresh the page or try again later</div>
-            </div>
-        )
-
-    // ⚠️ Map lowercase → UI
-    const values: valuesInterface[] = [
-        {
-            name: 'Analytical Thinking',
-            score: data.analyticalscore * 10,
-            averageScore: 32
-        },
-        {
-            name: 'Creativity',
-            score: data.creativescore * 10,
-            averageScore: 38
-        },
-        {
-            name: 'Communication',
-            score: data.communicationscore * 10,
-            averageScore: 40
-        },
-        {
-            name: 'Technical Skills',
-            score: data.technicalscore * 10,
-            averageScore: 42
-        },
-        {
-            name: 'Teamwork',
-            score: data.teamworkscore * 10,
-            averageScore: 39
-        },
-    ]
+    // Sorted to make the horizontal bar chart look like a leaderboard
+    const values = [
+        { name: 'Analytical', score: data.analyticalscore * 10, desc: "Strong problem-solving ability" },
+        { name: 'Creativity', score: data.creativescore * 10, desc: "Generates innovative ideas" },
+        { name: 'Communication', score: data.communicationscore * 10, desc: "Expresses ideas clearly" },
+        { name: 'Technical', score: data.technicalscore * 10, desc: "Strong technical capability" },
+        { name: 'Teamwork', score: data.teamworkscore * 10, desc: "Works well with others" },
+    ].sort((a, b) => b.score - a.score) 
 
     return (
-        <div>
-            <Table className="min-w-full shadow-md rounded-lg overflow-hidden">
-                <TableHeader className="bg-blue-600 text-white">
-                    <TableRow>
-                        <TableHead className="text-black p-2 text-lg">Skill</TableHead>
-                        <TableHead className="text-black p-2 text-lg">Score</TableHead>
-                        <TableHead className="text-black p-2 text-lg">Description</TableHead>
-                    </TableRow>
-                </TableHeader>
-
-                <TableBody className="text-gray-700 text-lg">
-                    <TableRow className='bg-white'>
-                        <TableCell>Analytical Thinking</TableCell>
-                        <TableCell>{`${data.analyticalscore * 10}%`}</TableCell>
-                        <TableCell>Strong problem-solving ability</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-blue-100'>
-                        <TableCell>Creativity</TableCell>
-                        <TableCell>{`${data.creativescore * 10}%`}</TableCell>
-                        <TableCell>Generates innovative ideas</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-white'>
-                        <TableCell>Communication</TableCell>
-                        <TableCell>{`${data.communicationscore * 10}%`}</TableCell>
-                        <TableCell>Expresses ideas clearly</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-blue-100'>
-                        <TableCell>Technical Skills</TableCell>
-                        <TableCell>{`${data.technicalscore * 10}%`}</TableCell>
-                        <TableCell>Strong technical capability</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-white'>
-                        <TableCell>Teamwork</TableCell>
-                        <TableCell>{`${data.teamworkscore * 10}%`}</TableCell>
-                        <TableCell>Works well with others</TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-
-            {/* 📊 Area Chart */}
-            <div className='mt-10 mb-10'>
-                <h1 className='text-xl font-semibold text-blue-600 mb-4'>
-                    Skill Assessment Chart
-                </h1>
-
-                <ResponsiveContainer width="100%" height={250}>
-                    <AreaChart data={values}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Area type="monotone" dataKey="score" stroke="#ADD8E6" fill="#ADD8E6" />
-                    </AreaChart>
-                </ResponsiveContainer>
+        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-200/50 border border-slate-100 h-full flex flex-col">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 bg-orange-50 text-orange-600 rounded-xl">
+                    <Target size={22} />
+                </div>
+                <h2 className="text-xl font-bold text-slate-900">Core Skills Matrix</h2>
             </div>
 
-            {/* 📈 Line Chart */}
-            <div className='mb-5'>
-                <h1 className='text-xl text-blue-600 font-semibold mb-5'>
-                    Skill Assessment Comparison
-                </h1>
+            <div className="grid md:grid-cols-2 gap-8 items-center flex-1">
+                
+                {/* Custom List replacing the table */}
+                <div className="space-y-4">
+                    {values.map((skill, idx) => (
+                        <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-md transition-all">
+                            <div>
+                                <h4 className="font-bold text-slate-900">{skill.name}</h4>
+                                <p className="text-xs text-slate-500">{skill.desc}</p>
+                            </div>
+                            <div className="px-3 py-1 bg-blue-100 text-blue-700 font-bold rounded-lg text-sm">
+                                {skill.score}%
+                            </div>
+                        </div>
+                    ))}
+                </div>
 
-                <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={values}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Line type="monotone" dataKey="score" stroke="#ADD8E6" />
-                        <Line type="monotone" dataKey="averageScore" stroke="#82ca9d" />
-                    </LineChart>
-                </ResponsiveContainer>
+                {/* Horizontal Bar Chart */}
+                <div className="h-[280px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart layout="vertical" data={values} margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+                            <XAxis type="number" domain={[0, 100]} hide />
+                            <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 12, fontWeight: 500 }} width={85} />
+                            <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                            <Bar dataKey="score" radius={[0, 4, 4, 0]} barSize={24}>
+                                {values.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={index === 0 ? '#4f46e5' : '#818cf8'} />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
         </div>
     )
 }
-
-export default SkillAssessmentTable

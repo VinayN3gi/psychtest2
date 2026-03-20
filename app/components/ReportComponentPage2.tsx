@@ -6,14 +6,6 @@ import SkillAssesmentTable from './Tables/SkillAssesmentTable'
 const ReportComponentPage2 = () => {
   return (
     <div>
-
-        <div className=' mb-5'>
-          <h2 className=' text-2xl text-blue-500 font-bold mb-5 '>
-              3. Personality Traits
-          </h2>
-          <PersonalityTraitTable/>
-        </div>
-
         <div className=' mb-5'>
           <h2 className=' text-2xl text-blue-500 font-bold mb-5 '>
               4. Skills Assesment

@@ -69,13 +69,9 @@ const Page = () => {
 
   return (
     <MaxWidthWrapper className=' mx-auto'>
-      <div ref={reportRefPage1} className=' mb-5'>
+      <div ref={reportRefPage1}>
       <ReportComponent/>
       </div>
-
-       <div ref={reportRefPage2}>
-        <ReportComponentPage2/>
-       </div>
 
        <div ref={reportRefPage3}>
         <ReportComponentPage3/>

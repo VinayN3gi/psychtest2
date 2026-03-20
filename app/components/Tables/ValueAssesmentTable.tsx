@@ -1,18 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { Loader2 } from 'lucide-react'
-import {
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, LineChart, Line, Legend
-} from 'recharts'
+import { Loader2, Gem } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts'
 import { supabase } from '@/lib/supabase'
 
 interface DataType {
@@ -27,165 +16,126 @@ interface DataType {
 interface valuesInterface {
     name: string,
     score: number,
-    averageScore: number
+    averageScore: number,
+    desc: string
 }
 
-const ValueAssessmentTable = () => {
-
+export default function ValueAssessmentTable() {
     const [data, setData] = useState<DataType | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const {
-                    data: { user }
-                } = await supabase.auth.getUser()
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) return setData(null)
 
-                if (!user) {
-                    setData(null)
-                    return
-                }
-
-                const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-value-assessment`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ userId: user.id }),
-                    }
-                )
-
-                const result = await res.json()
-                setData(result)
-
+                const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-value-assessment`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: user.id }),
+                })
+                setData(await res.json())
             } catch (err) {
                 console.error(err)
-                setData(null)
-            } finally {
-                setIsLoading(false)
-            }
+            } finally { setIsLoading(false) }
         }
-
         fetchData()
     }, [])
 
-    // 🔄 Loading
-    if (isLoading)
-        return (
-            <div className='flex justify-center items-center'>
-                <Loader2 className='h-7 w-7 animate-spin' color='blue' />
-            </div>
-        )
+    if (isLoading) return <div className="bg-white rounded-3xl p-8 shadow-xl flex justify-center items-center min-h-[400px]"><Loader2 className='h-8 w-8 animate-spin text-teal-600' /></div>
+    if (!data) return <div className="bg-white rounded-3xl p-8 shadow-xl text-center"><p className="text-slate-500">No data found</p></div>
 
-    // ❌ No data
-    if (!data)
-        return (
-            <div className='text-center'>
-                <div className='text-2xl font-bold'>No data found</div>
-                <div className='mt-1'>Please refresh the page or try again later</div>
-            </div>
-        )
-
-    // ⚠️ map lowercase → UI
+    // Map data and add descriptions for the UI
     const values: valuesInterface[] = [
-        { name: 'Autonomy', score: data.autonomyscore * 10, averageScore: 67 },
-        { name: 'Innovation', score: data.innovationscore * 10, averageScore: 24 },
-        { name: 'Achievement', score: data.achievementscore * 10, averageScore: 27 },
-        { name: 'Helping', score: data.helpingscore * 10, averageScore: 34 },
-        { name: 'Stability', score: data.stabilityscore * 10, averageScore: 39 },
-        { name: 'Financial', score: data.financialscore * 10, averageScore: 42 }
+        { name: 'Autonomy', score: data.autonomyscore * 10, averageScore: 67, desc: 'Values independence & self-direction' },
+        { name: 'Innovation', score: data.innovationscore * 10, averageScore: 24, desc: 'Driven by creativity & new ideas' },
+        { name: 'Achievement', score: data.achievementscore * 10, averageScore: 27, desc: 'Motivated by goals & success' },
+        { name: 'Helping', score: data.helpingscore * 10, averageScore: 34, desc: 'Desire to support & uplift others' },
+        { name: 'Stability', score: data.stabilityscore * 10, averageScore: 39, desc: 'Prefers predictable, secure environments' },
+        { name: 'Financial', score: data.financialscore * 10, averageScore: 42, desc: 'Highly motivated by monetary reward' }
     ]
 
     return (
-        <div>
-            <Table className="min-w-full shadow-md rounded-lg overflow-hidden">
-                <TableHeader className="bg-blue-600 text-white">
-                    <TableRow>
-                        <TableHead className="text-black p-2 text-lg">Value</TableHead>
-                        <TableHead className="text-black p-2 text-lg">Score</TableHead>
-                        <TableHead className="text-black p-2 text-lg">Description</TableHead>
-                    </TableRow>
-                </TableHeader>
+        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col lg:flex-row gap-10">
+            
+            {/* Left Side: Modern Value Cards */}
+            <div className="flex-1 space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-teal-50 text-teal-600 rounded-xl">
+                        <Gem size={22} />
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900">Core Value Assesment</h2>
+                </div>
+                
+                <p className="text-slate-500 text-sm mb-6">
+                    Your core values dictate the environments where you'll feel most fulfilled. Here is a breakdown of what matters most to you.
+                </p>
 
-                <TableBody className="text-gray-700 text-lg">
-                    <TableRow className='bg-white'>
-                        <TableCell>Autonomy</TableCell>
-                        <TableCell>{`${data.autonomyscore * 10}%`}</TableCell>
-                        <TableCell>Values independence</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-blue-100'>
-                        <TableCell>Innovation</TableCell>
-                        <TableCell>{`${data.innovationscore * 10}%`}</TableCell>
-                        <TableCell>Enjoys creativity</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-white'>
-                        <TableCell>Achievement</TableCell>
-                        <TableCell>{`${data.achievementscore * 10}%`}</TableCell>
-                        <TableCell>Goal-driven mindset</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-blue-100'>
-                        <TableCell>Helping</TableCell>
-                        <TableCell>{`${data.helpingscore * 10}%`}</TableCell>
-                        <TableCell>Helping others</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-white'>
-                        <TableCell>Stability</TableCell>
-                        <TableCell>{`${data.stabilityscore * 10}%`}</TableCell>
-                        <TableCell>Prefers stability</TableCell>
-                    </TableRow>
-
-                    <TableRow className='bg-blue-100'>
-                        <TableCell>Financial</TableCell>
-                        <TableCell>{`${data.financialscore * 10}%`}</TableCell>
-                        <TableCell>Motivated by money</TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-
-            {/* 📊 Area Chart */}
-            <div className='mt-10 mb-10'>
-                <h1 className='text-xl font-semibold text-blue-600 mb-4'>
-                    Value Assessment Scores
-                </h1>
-
-                <ResponsiveContainer width="100%" height={250}>
-                    <AreaChart data={values}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Area type="monotone" dataKey="score" stroke="#ADD8E6" fill="#ADD8E6" />
-                    </AreaChart>
-                </ResponsiveContainer>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {values.map((item, idx) => (
+                        <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-md hover:bg-white transition-all group">
+                            <div className="flex justify-between items-start mb-2">
+                                <h4 className="font-bold text-slate-900">{item.name}</h4>
+                                <span className="px-2 py-1 bg-teal-100 text-teal-700 font-bold rounded-lg text-xs">
+                                    {item.score}%
+                                </span>
+                            </div>
+                            <p className="text-xs text-slate-500">{item.desc}</p>
+                            
+                            {/* Mini progress bar inside card */}
+                            <div className="mt-3 h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-teal-500 rounded-full group-hover:bg-teal-400 transition-colors" 
+                                    style={{ width: `${item.score}%` }}
+                                ></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
-            {/* 📈 Line Chart */}
-            <div className='mb-5'>
-                <h1 className='text-xl text-blue-600 font-semibold mb-5'>
-                    Value Assessment Comparison
-                </h1>
-
-                <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={values}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Line type="monotone" dataKey="score" stroke="#8884d8" />
-                        <Line type="monotone" dataKey="averageScore" stroke="#82ca9d" />
-                    </LineChart>
-                </ResponsiveContainer>
+            {/* Right Side: Comparative Bar Chart */}
+            <div className="flex-1 flex flex-col justify-center">
+                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6 text-center">Your Score vs. Average</h3>
+                
+                <div className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={values} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                            <XAxis 
+                                dataKey="name" 
+                                tick={{ fill: '#64748b', fontSize: 11, fontWeight: 500 }} 
+                                axisLine={false} 
+                                tickLine={false} 
+                                dy={10}
+                            />
+                            <YAxis 
+                                tick={{ fill: '#64748b', fontSize: 11 }} 
+                                axisLine={false} 
+                                tickLine={false} 
+                            />
+                            <Tooltip 
+                                cursor={{fill: '#f8fafc'}} 
+                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontWeight: 500 }} 
+                            />
+                            <Legend 
+                                verticalAlign="top" 
+                                height={36} 
+                                iconType="circle" 
+                                wrapperStyle={{ fontSize: '12px', color: '#64748b' }}
+                            />
+                            <Bar dataKey="score" name="Your Score" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                                {values.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill="#14b8a6" /> /* Teal 500 */
+                                ))}
+                            </Bar>
+                            <Bar dataKey="averageScore" name="Average" fill="#cbd5e1" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
+
         </div>
     )
 }
-
-export default ValueAssessmentTable
