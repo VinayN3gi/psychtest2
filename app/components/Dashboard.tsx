@@ -151,10 +151,11 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Right Side: Action */}
-          <div className="w-full lg:w-auto shrink-0 flex flex-col items-center gap-3" onClick={() => setClick(true)}>
+          {/* Right Side: Action Buttons */}
+          <div className="w-full lg:w-auto shrink-0 flex flex-col items-center gap-3">
             <Link
               href="/reportPage"
+              onClick={() => setClick(true)}
               className="group flex items-center justify-center gap-3 w-full lg:w-auto px-10 py-5 bg-slate-900 hover:bg-blue-600 text-white rounded-2xl shadow-xl transition-all duration-300 font-semibold text-lg hover:-translate-y-1 hover:shadow-blue-600/20"
             >
               {click ? (
@@ -169,7 +170,15 @@ const Dashboard = () => {
                 </>
               )}
             </Link>
-            <span className="text-slate-400 text-sm font-medium">Click to open your dashboard</span>
+            
+            {/* Retake Test Button */}
+            <Link
+              href="/testPage"
+              className="group flex items-center justify-center gap-2 w-full px-10 py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 rounded-2xl transition-all duration-300 font-semibold"
+            >
+              <Sparkles size={18} className="text-slate-400 group-hover:text-blue-500 transition-colors" />
+              Retake Assessment
+            </Link>
           </div>
 
         </div>
