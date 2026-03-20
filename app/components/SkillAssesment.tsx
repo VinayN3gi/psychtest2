@@ -17,6 +17,7 @@ import { Loader2 } from 'lucide-react'
 import { trpc } from '../_trpc/client'
 import { useRouter } from 'next/navigation'
 import ContactInfo from './ContactInfo'
+import { supabase } from '@/lib/supabase'
 
 
 const SkillAssesment = () => {
@@ -36,35 +37,50 @@ const SkillAssesment = () => {
     const [next, setNext] = useState<boolean>(false)  
     const router=useRouter()  
 
-    const {mutate:createSkillAssesmentAnswer}=trpc.skillAssesmentAnswer.useMutation({
-         onSuccess:()=>{
-            router.push("/testPage4")
-         },
-         retry:true,
-         retryDelay:500
-    })
-
-    const onSubmit=()=>{
-         if(!firstAnswer || !secondAnswer || !thirdAnswer || !fourthAnswer || !fifthAnswer || !sixthAnswer || !seventhAnswer || !eigthAnswer || !ninthAnswer || !tenthAnswer || !eleventhAnswer || !twelvethAnswer)
-         {
-               setIsOpen(true)
-               return
-         }
-         setNext(true)
-         createSkillAssesmentAnswer({
-            answerOne:firstAnswer,
-            answerTwo:secondAnswer,
-            answerThree:thirdAnswer,
-            answerFour:fourthAnswer,
-            answerFive:fifthAnswer,
-            answerSix:sixthAnswer,
-            answerSeven:seventhAnswer,
-            answerEight:eigthAnswer,
-            answerNine:ninthAnswer,
-            answerTen:tenthAnswer,
-            answerEleven:eleventhAnswer,
-            answerTwelve:twelvethAnswer
-    })}
+    const onSubmit = async () => {
+      if (
+        !fifthAnswer || !fourthAnswer || !thirdAnswer || !secondAnswer ||
+        !firstAnswer || !sixthAnswer || !seventhAnswer || !eigthAnswer ||
+        !ninthAnswer || !tenthAnswer || !eleventhAnswer || !twelvethAnswer
+      ) {
+        setIsOpen(true)
+        return
+      }
+    
+      setNext(true)
+    
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not logged in')
+    
+        const { error } = await supabase.functions.invoke('create-skill-assessment', {
+          body: {
+            userId: user.id,
+            answerOne: firstAnswer,
+            answerTwo: secondAnswer,
+            answerThree: thirdAnswer,
+            answerFour: fourthAnswer,
+            answerFive: fifthAnswer,
+            answerSix: sixthAnswer,
+            answerSeven: seventhAnswer,
+            answerEight: eigthAnswer,
+            answerNine: ninthAnswer,
+            answerTen: tenthAnswer,
+            answerEleven: eleventhAnswer,
+            answerTwelve: twelvethAnswer
+          },
+        })
+    
+        if (error) throw error
+    
+        router.push('/testPage4')
+    
+      } catch (err) {
+        console.error('Failed to submit:', err)
+      } finally {
+        setNext(false)
+      }
+       }
 
   return (
     <MaxWidthWrapper className=' mx-auto'>

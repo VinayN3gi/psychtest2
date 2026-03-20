@@ -18,6 +18,7 @@ import { Loader2 } from 'lucide-react'
 import { trpc } from '../_trpc/client'
 import { useRouter } from 'next/navigation'
 import ContactInfo from './ContactInfo'
+import { supabase } from '@/lib/supabase'
 
 
 
@@ -43,36 +44,54 @@ const PersonalityTraitTest = () => {
    const router=useRouter()
 
 
-   const {mutate:createPersonalityRecord}=trpc.createPersonalityInventory.useMutation({
-      onSuccess:()=>{
-         router.push(`/testPage3`)
-      },
-      retry:true,
-      retryDelay:500,
-      })
+   const onSubmit = async () => {
+  if (
+    !fifthAnswer || !fourthAnswer || !thirdAnswer || !secondAnswer ||
+    !firstAnswer || !sixthAnswer || !seventhAnswer || !eigthAnswer ||
+    !ninthAnswer || !tenthAnswer || !eleventhAnswer || !twelvethAnswer ||
+    !thirteenthAnswer || !fourteenthAnswer
+  ) {
+    setIsOpen(true)
+    return
+  }
 
-   const onSubmit=()=>{
-      if(!fifthAnswer || !fourthAnswer || !thirdAnswer || !secondAnswer || !firstAnswer || !sixthAnswer || !seventhAnswer || !eigthAnswer || !ninthAnswer || !tenthAnswer || !eleventhAnswer || !twelvethAnswer || !thirteenthAnswer || !fourteenthAnswer){
-      setIsOpen(true) 
-      return
-      }
-      setNext(true)
-      createPersonalityRecord({
-         answerOne:firstAnswer,
-         answerTwo:secondAnswer,
-         answerThree:thirdAnswer,
-         answerFour:fourthAnswer,
-         answerFive:fifthAnswer,
-         answerSix:sixthAnswer,
-         answerSeven:seventhAnswer,
-         answerEight:eigthAnswer,
-         answerNine:ninthAnswer,
-         answerTen:tenthAnswer,
-         answerEleven:eleventhAnswer,
-         answerTwelve:twelvethAnswer,
-         answerThirteen:thirteenthAnswer,
-         answerFourteen:fourteenthAnswer,     
-      })
+  setNext(true)
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not logged in')
+
+    const { error } = await supabase.functions.invoke('create-personality-inventory', {
+      body: {
+        userId: user.id,
+        answerOne: firstAnswer,
+        answerTwo: secondAnswer,
+        answerThree: thirdAnswer,
+        answerFour: fourthAnswer,
+        answerFive: fifthAnswer,
+        answerSix: sixthAnswer,
+        answerSeven: seventhAnswer,
+        answerEight: eigthAnswer,
+        answerNine: ninthAnswer,
+        answerTen: tenthAnswer,
+        answerEleven: eleventhAnswer,
+        answerTwelve: twelvethAnswer,
+        answerThirteen: thirteenthAnswer,
+        answerFourteen: fourteenthAnswer,
+      },
+    })
+
+    console.log(error)
+
+    if (error) throw error
+
+    router.push('/testPage3')
+
+  } catch (err) {
+    console.error('Failed to submit:', err)
+  } finally {
+    setNext(false)
+  }
    }
 
 

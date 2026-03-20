@@ -17,6 +17,7 @@ import { trpc } from '../_trpc/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import ContactInfo from './ContactInfo'
+import { supabase } from '@/lib/supabase'
 
 
 const ValueAssesment = () => {
@@ -37,33 +38,52 @@ const ValueAssesment = () => {
     const [next, setNext] = useState<boolean>(false)  
     const router=useRouter()
 
-    const {mutate:createValueAssesmentAnswer}=trpc.ValueAssesment.useMutation({
-      onSuccess:()=>router.push('/reportPage'),
-      retry:true,
-      retryDelay:500,
+    const onSubmit = async () => {
+  const answers = [
+    firstAnswer, secondAnswer, thirdAnswer, fourthAnswer,
+    fifthAnswer, sixthAnswer, seventhAnswer, eigthAnswer,
+    ninthAnswer, tenthAnswer, eleventhAnswer, twelvethAnswer
+  ]
+
+  if (answers.some(a => a == null)) {
+    setIsOpen(true)
+    return
+  }
+
+  setNext(true)
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not logged in')
+
+    const { error } = await supabase.functions.invoke('create-value-assessment', {
+      body: {
+        userId: user.id,
+        answerOne: firstAnswer,
+        answerTwo: secondAnswer,
+        answerThree: thirdAnswer,
+        answerFour: fourthAnswer,
+        answerFive: fifthAnswer,
+        answerSix: sixthAnswer,
+        answerSeven: seventhAnswer,
+        answerEight: eigthAnswer,
+        answerNine: ninthAnswer,
+        answerTen: tenthAnswer,
+        answerEleven: eleventhAnswer,
+        answerTwelve: twelvethAnswer,
+      },
     })
-   
-    const onSubmit=()=>{
-      if(!firstAnswer || !secondAnswer || !thirdAnswer || !fourthAnswer || !fifthAnswer || !sixthAnswer || !seventhAnswer || !eigthAnswer || !ninthAnswer || !tenthAnswer || !eleventhAnswer || !twelvethAnswer)
-      {
-            setIsOpen(true)
-            return
-      }
-      setNext(true)
-      createValueAssesmentAnswer({
-         answerOne:firstAnswer,
-         answerTwo:secondAnswer,
-         answerThree:thirdAnswer,
-         answerFour:fourthAnswer,
-         answerFive:fifthAnswer,
-         answerSix:sixthAnswer,
-         answerSeven:seventhAnswer,
-         answerEight:eigthAnswer,
-         answerNine:ninthAnswer,
-         answerTen:tenthAnswer,
-         answerEleven:eleventhAnswer,
-         answerTwelve:twelvethAnswer
- })}
+
+    if (error) throw error
+
+    router.push('/reportPage')
+
+  } catch (err) {
+    console.error('Failed to submit value assessment:', err)
+  } finally {
+    setNext(false)
+  }
+}
   
     return (
     <MaxWidthWrapper className=' mx-auto'>

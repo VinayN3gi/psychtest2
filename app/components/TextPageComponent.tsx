@@ -18,6 +18,7 @@ import {
    DialogTrigger,
 } from "@/components/ui/dialog"
 import ContactInfo from './ContactInfo'
+import { supabase } from '@/lib/supabase'
 
 const TextPageComponent = () => {
   const router=useRouter();
@@ -37,37 +38,51 @@ const TextPageComponent = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [next, setNext] = useState<boolean>(false)
 
-
-  const {mutate:createInterestInventory}=trpc.createInerestInvetory.useMutation({
-    onSuccess:()=>{
-      router.push('/testPage2')
-    }
-  })
-
-  const handleSubmit=()=>{
-      if(!firstAnswer || !secondAnswer || !thirdAnswer || !fourthAnswer || !fifthAnswer || !sixthAnswer || !seventhAnswer || !eigthAnswer || !ninthAnswer || !tenthAnswer || !eleventhAnswer || !twelvethAnswer)
-       {
-         setIsOpen(true)
-         return
-       }
-
-      setNext(true)    
-      createInterestInventory({
-        answerOne:firstAnswer,
-        answerTwo:secondAnswer ? secondAnswer : 1,
-        answerThree:thirdAnswer ? thirdAnswer : 1,
-        answerFour:fourthAnswer ? fourthAnswer : 1,
-        answerFive:fifthAnswer ? fifthAnswer : 1,
-        answerSix:sixthAnswer ? sixthAnswer : 1,
-        answerSeven:seventhAnswer ? seventhAnswer : 1,
-        answerEight:eigthAnswer ? eigthAnswer : 1,
-        answerNine:ninthAnswer ? ninthAnswer : 1,
-        answerTen:tenthAnswer ? tenthAnswer : 1,
-        answerEleven:eleventhAnswer ? eleventhAnswer : 1,
-        answerTwelve:twelvethAnswer ? twelvethAnswer : 1,
-      })
-    
+   const handleSubmit = async () => {
+  if (
+    !firstAnswer || !secondAnswer || !thirdAnswer || !fourthAnswer ||
+    !fifthAnswer || !sixthAnswer || !seventhAnswer || !eigthAnswer ||
+    !ninthAnswer || !tenthAnswer || !eleventhAnswer || !twelvethAnswer
+  ) {
+    setIsOpen(true)
+    return
   }
+
+  setNext(true)
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not logged in')
+
+    const { error } = await supabase.functions.invoke('create-interest-inventory', {
+      body: {
+        userId: user.id,
+        answerOne: firstAnswer,
+        answerTwo: secondAnswer,
+        answerThree: thirdAnswer,
+        answerFour: fourthAnswer,
+        answerFive: fifthAnswer,
+        answerSix: sixthAnswer,
+        answerSeven: seventhAnswer,
+        answerEight: eigthAnswer,
+        answerNine: ninthAnswer,
+        answerTen: tenthAnswer,
+        answerEleven: eleventhAnswer,
+        answerTwelve: twelvethAnswer,
+      },
+    })
+
+    if (error) throw error
+
+    router.push('/testPage2')
+
+  } catch (err) {
+    console.error('Failed to submit:', err)
+  } finally {
+    setNext(false)
+  }
+}
+
 
 
   return (
