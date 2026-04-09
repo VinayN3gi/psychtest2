@@ -25,10 +25,30 @@ const AuthPage = () => {
   const router = useRouter()
 
   const handleAuth = async () => {
+    // 1. Check if all required fields are filled
     if (!email || !password || (!isLogin && !username)) {
       toast.error("Please fill all fields")
       return
     }
+
+    // --- NEW VALIDATION CHECKS START HERE ---
+    
+    // 2. Validate Email (must contain '@')
+    if (!email.includes('@')) {
+      toast.error("Please enter a valid email address containing '@'")
+      return
+    }
+
+    // 3. Validate Name on Sign Up (must contain at least one letter or number)
+    if (!isLogin) {
+      const hasAlphanumeric = /[a-zA-Z0-9]/.test(username);
+      if (!hasAlphanumeric) {
+        toast.error("Full name must contain at least one letter or number.")
+        return
+      }
+    }
+    
+    // --- NEW VALIDATION CHECKS END HERE ---
 
     try {
       setLoading(true)
@@ -50,7 +70,7 @@ const AuthPage = () => {
           email,
           password,
         })
-       
+        
         if (error) throw error
         if (!data.user) throw new Error("User creation failed")
 
@@ -73,8 +93,6 @@ const AuthPage = () => {
       setLoading(false)
     }
   }
-
-
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row font-sans selection:bg-blue-100 selection:text-blue-900">

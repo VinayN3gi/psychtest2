@@ -23,7 +23,7 @@ const ReportComponent = () => {
             <Sparkles size={16} /> Comprehensive Analysis
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
-            Your Career <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">Assessment Report</span>
+            Your Career <span data-pdf-solid-text="true" className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">Assessment Report</span>
           </h1>
           <p className="mt-4 text-lg text-slate-600 max-w-2xl">
             A deep dive into your psychological profile, skills, and interests to help you navigate your ideal career path.
