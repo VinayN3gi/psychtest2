@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import ReportComponent from '../components/ReportComponent'
+import ReportChat from '../components/ReportChat'
 import ReportComponentPage2 from '../components/ReportComponentPage2'
 import ReportComponentPage3 from '../components/ReportComponentPage3'
 import { Loader2 } from 'lucide-react'
@@ -95,7 +96,6 @@ const Page = () => {
        <div ref={reportRefPage3}>
         <ReportComponentPage3/>
        </div>
-
       <Button className='mt-5 w-full' onClick={downloadPDF}
       disabled={!(loader===false)}
       >
@@ -106,13 +106,13 @@ const Page = () => {
       }
       </Button> 
 
-      <div className=' mt-8 font-serif text-xl '>
+      {/*<div className=' mt-8 font-serif text-xl '>
         <p>Click to view some <span className=' text-blue-600 font-semibold hover:cursor-pointer hover:underline'>
           <Link href="/careerPage">
             career
           </Link>
           </span> options </p>
-      </div>
+      </div> */}
     </MaxWidthWrapper>
   )
 }

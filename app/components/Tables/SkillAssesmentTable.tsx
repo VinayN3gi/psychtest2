@@ -43,7 +43,7 @@ export default function SkillAssessmentTable() {
     const values = [
         { name: 'Analytical', score: data.analyticalscore * 10, desc: "Strong problem-solving ability" },
         { name: 'Creativity', score: data.creativescore * 10, desc: "Generates innovative ideas" },
-        { name: 'Communication', score: data.communicationscore * 10, desc: "Expresses ideas clearly" },
+        { name: 'Speaking', score: data.communicationscore * 10, desc: "Expresses ideas clearly" },
         { name: 'Technical', score: data.technicalscore * 10, desc: "Strong technical capability" },
         { name: 'Teamwork', score: data.teamworkscore * 10, desc: "Works well with others" },
     ].sort((a, b) => b.score - a.score) 

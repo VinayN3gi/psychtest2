@@ -94,10 +94,10 @@ const Dashboard = () => {
               <Ghost size={48} strokeWidth={1.5} />
             </div>
             
-            <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">It's pretty empty around here</h3>
+            <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">It&apos;s pretty empty around here</h3>
             
             <p className="text-slate-600 text-lg mb-10 max-w-md">
-              You haven't generated your career report yet. Take our scientifically-backed assessment to discover your ideal path.
+              You haven&apos;t generated your career report yet. Take our scientifically-backed assessment to discover your ideal path.
             </p>
             
             <Link 

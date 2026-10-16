@@ -23,9 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={cn('min-h-screen antialiased grainy',ebGaramond.className)}>
-        {children}
-        <Toaster richColors  duration={3000}/>
-        </body>
+        <Provider>
+          {children}
+          <Toaster richColors  duration={3000}/>
+        </Provider>
+      </body>
     </html>
   );
 }

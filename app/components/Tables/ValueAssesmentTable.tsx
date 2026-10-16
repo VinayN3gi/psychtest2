@@ -69,7 +69,7 @@ export default function ValueAssessmentTable() {
                 </div>
                 
                 <p className="text-slate-500 text-sm mb-6">
-                    Your core values dictate the environments where you'll feel most fulfilled. Here is a breakdown of what matters most to you.
+                    Your core values dictate the environments where you&apos;ll feel most fulfilled. Here is a breakdown of what matters most to you.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

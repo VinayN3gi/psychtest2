@@ -1,7 +1,10 @@
 import { ArrowRight, BrainCircuit, CheckCircle, Target, User } from 'lucide-react'
 import React from 'react'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation';
 
 function Hero() {
+  const router=useRouter();
   return (
     <section className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-32">
           
@@ -23,24 +26,25 @@ function Hero() {
             </h1>
             
             <p className="text-lg text-slate-600 leading-relaxed mb-8 max-w-lg">
-              Stop guessing. Take our 15-minute psychological assessment to uncover your strengths, personality type, and the roles where you'll naturally thrive.
+              Stop guessing. Take our 15-minute psychological assessment to uncover your strengths, personality type, and the roles where you&apos;ll naturally thrive.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 text-white text-lg font-medium rounded-xl shadow-xl shadow-blue-200 hover:bg-blue-700 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+              <button onClick={()=>router.push("/auth")}
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 text-white text-lg font-medium rounded-xl shadow-xl shadow-blue-200 hover:bg-blue-700 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
                 Start Free Assessment
                 <ArrowRight size={20} />
               </button>
-              <button className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-slate-700 border border-slate-200 font-medium rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-300">
+              {/*<button className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-slate-700 border border-slate-200 font-medium rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-300">
                 View Sample Report
-              </button>
+              </button> */}
             </div>
 
             <div className="mt-8 flex items-center gap-4 text-sm text-slate-500">
               <div className="flex -space-x-3">
                 {[1,2,3,4].map((i) => (
                   <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i+10}`} alt="avatar" />
+                    <Image src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i+10}`} alt="avatar" width={32} height={32} className="w-full h-full object-cover" />
                   </div>
                 ))}
               </div>
